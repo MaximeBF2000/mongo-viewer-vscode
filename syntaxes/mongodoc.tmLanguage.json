@@ -1,0 +1,24 @@
+{
+  "name": "MongoDB Document",
+  "scopeName": "source.mongodoc",
+  "patterns": [{ "include": "#value" }],
+  "repository": {
+    "value": {
+      "patterns": [
+        { "match": "//.*$", "name": "comment.line.double-slash" },
+        { "begin": "/\\*", "end": "\\*/", "name": "comment.block" },
+        { "match": "(\"(?:[^\"\\\\]|\\\\.)*\")\\s*(:)", "captures": { "1": { "name": "support.type.property-name.json" }, "2": { "name": "punctuation.separator.key-value" } } },
+        { "match": "('(?:[^'\\\\]|\\\\.)*')\\s*(:)", "captures": { "1": { "name": "support.type.property-name.json" }, "2": { "name": "punctuation.separator.key-value" } } },
+        { "match": "(\\$[\\w$.-]*)\\s*(:)", "captures": { "1": { "name": "keyword.operator.mongodb" }, "2": { "name": "punctuation.separator.key-value" } } },
+        { "match": "([A-Za-z_][\\w$.-]*)\\s*(:)", "captures": { "1": { "name": "support.type.property-name.json" }, "2": { "name": "punctuation.separator.key-value" } } },
+        { "match": "\\b(new)\\b", "name": "keyword.operator.new" },
+        { "match": "\\b(ObjectId|ObjectID|ISODate|Date|NumberInt|NumberLong|NumberDecimal|Decimal128|Long|Int32|Double|UUID|BinData|HexData|Binary|Timestamp|MinKey|MaxKey|RegExp|Code|DBRef|BSONSymbol)\\b", "name": "support.function.mongodb" },
+        { "match": "\\b(true|false|null|undefined|NaN|Infinity)\\b", "name": "constant.language" },
+        { "match": "-?\\b(?:0[xX][0-9a-fA-F]+|\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)\\b", "name": "constant.numeric" },
+        { "begin": "\"", "end": "\"", "name": "string.quoted.double", "patterns": [{ "match": "\\\\.", "name": "constant.character.escape" }] },
+        { "begin": "'", "end": "'", "name": "string.quoted.single", "patterns": [{ "match": "\\\\.", "name": "constant.character.escape" }] },
+        { "match": "/(?:[^/\\\\\\n]|\\\\.)+/[a-z]*", "name": "string.regexp" }
+      ]
+    }
+  }
+}

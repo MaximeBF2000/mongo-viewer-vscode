@@ -1,0 +1,14 @@
+**
+!dist/extension.js
+!dist/playgroundWorker.js
+!dist/webview.js
+!dist/webview.css
+!dist/codicon.css
+!dist/codicon.ttf
+!media/**
+!syntaxes/**
+!snippets/**
+!package.json
+!README.md
+!CHANGELOG.md
+!LICENSE

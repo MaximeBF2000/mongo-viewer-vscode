@@ -1,0 +1,10 @@
+{
+  "name": "MongoDB Playground",
+  "scopeName": "source.mongoplayground",
+  "patterns": [
+    { "match": "\\$[A-Za-z_][\\w$]*", "name": "keyword.operator.mongodb" },
+    { "match": "\\b(ObjectId|ObjectID|ISODate|NumberInt|NumberLong|NumberDecimal|Decimal128|UUID|BinData|Timestamp|MinKey|MaxKey)\\b", "name": "support.function.mongodb" },
+    { "match": "\\b(db|use|print|printjson)\\b", "name": "support.variable.mongodb" },
+    { "include": "source.js" }
+  ]
+}

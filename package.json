@@ -1,0 +1,913 @@
+{
+  "name": "mongo-viewer",
+  "displayName": "Mongo Viewer",
+  "description": "A fast, native MongoDB explorer for VS Code: browse, query, edit and debug your data without leaving the editor.",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "vscode": "^1.101.0"
+  },
+  "dependencies": {
+    "@vscode/codicons": "^0.0.46-24",
+    "acorn": "^8.19.0",
+    "acorn-walk": "^8.3.5",
+    "mongodb": "^7.8.0",
+    "mongodb-connection-string-url": "^7.0.2",
+    "preact": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/vscode": "^1.101.0",
+    "@vscode/vsce": "^4.1.0",
+    "esbuild": "^0.28.2",
+    "playwright": "^1.65.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  },
+  "main": "./dist/extension.js",
+  "icon": "media/icon.png",
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "keywords": [
+    "mongodb",
+    "mongo",
+    "database",
+    "nosql",
+    "atlas",
+    "mongosh",
+    "query"
+  ],
+  "publisher": "maximebf",
+  "activationEvents": [
+    "onFileSystem:mongoviewer-doc",
+    "onLanguage:mongoplayground",
+    "onWebviewPanel:mongoViewer.collection"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "Playground scripts cannot run in untrusted workspaces."
+    }
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "mongoViewer",
+          "title": "Mongo Viewer",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "mongoViewer": [
+        {
+          "id": "mongoViewer.connections",
+          "name": "Connections",
+          "icon": "media/activity.svg",
+          "contextualTitle": "Mongo Viewer"
+        },
+        {
+          "id": "mongoViewer.favorites",
+          "name": "Favorites & Recent",
+          "icon": "media/activity.svg",
+          "contextualTitle": "Mongo Viewer",
+          "visibility": "collapsed"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "mongoViewer.connections",
+        "contents": "Connect to MongoDB to browse and query your data.\n[Add Connection](command:mongoViewer.addConnection)\n[Import from .env File](command:mongoViewer.importFromEnv)\nAtlas, self-hosted and localhost are all supported. Credentials stay in VS Code SecretStorage."
+      }
+    ],
+    "commands": [
+      {
+        "command": "mongoViewer.addConnection",
+        "title": "Add Connection",
+        "category": "Mongo Viewer",
+        "icon": "$(add)"
+      },
+      {
+        "command": "mongoViewer.importFromEnv",
+        "title": "Import Connection from .env File",
+        "category": "Mongo Viewer",
+        "icon": "$(file-symlink-file)"
+      },
+      {
+        "command": "mongoViewer.filterTree",
+        "title": "Filter Databases and Collections",
+        "category": "Mongo Viewer",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "mongoViewer.clearTreeFilter",
+        "title": "Clear Filter",
+        "category": "Mongo Viewer",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "mongoViewer.refreshAll",
+        "title": "Refresh",
+        "category": "Mongo Viewer",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "mongoViewer.goToCollection",
+        "title": "Go to Collection…",
+        "category": "Mongo Viewer",
+        "icon": "$(search)"
+      },
+      {
+        "command": "mongoViewer.newPlayground",
+        "title": "New Query Playground",
+        "category": "Mongo Viewer",
+        "icon": "$(notebook)"
+      },
+      {
+        "command": "mongoViewer.connect",
+        "title": "Connect",
+        "category": "Mongo Viewer",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "mongoViewer.disconnect",
+        "title": "Disconnect",
+        "category": "Mongo Viewer",
+        "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "mongoViewer.reconnect",
+        "title": "Reconnect",
+        "category": "Mongo Viewer",
+        "icon": "$(debug-restart)"
+      },
+      {
+        "command": "mongoViewer.editConnection",
+        "title": "Edit Connection…",
+        "category": "Mongo Viewer",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "mongoViewer.removeConnection",
+        "title": "Remove Connection",
+        "category": "Mongo Viewer",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "mongoViewer.copyConnectionString",
+        "title": "Copy Connection String",
+        "category": "Mongo Viewer",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "mongoViewer.openShell",
+        "title": "Open mongosh",
+        "category": "Mongo Viewer",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "mongoViewer.refreshNode",
+        "title": "Refresh",
+        "category": "Mongo Viewer",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "mongoViewer.createDatabase",
+        "title": "Create Database…",
+        "category": "Mongo Viewer",
+        "icon": "$(add)"
+      },
+      {
+        "command": "mongoViewer.dropDatabase",
+        "title": "Drop Database…",
+        "category": "Mongo Viewer",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "mongoViewer.createCollection",
+        "title": "Create Collection…",
+        "category": "Mongo Viewer",
+        "icon": "$(add)"
+      },
+      {
+        "command": "mongoViewer.dropCollection",
+        "title": "Drop Collection…",
+        "category": "Mongo Viewer",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "mongoViewer.renameCollection",
+        "title": "Rename Collection…",
+        "category": "Mongo Viewer",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "mongoViewer.copyCollection",
+        "title": "Copy Collection To…",
+        "category": "Mongo Viewer",
+        "icon": "$(files)"
+      },
+      {
+        "command": "mongoViewer.openCollection",
+        "title": "Open Collection",
+        "category": "Mongo Viewer",
+        "icon": "$(table)"
+      },
+      {
+        "command": "mongoViewer.openSchema",
+        "title": "View Schema",
+        "category": "Mongo Viewer",
+        "icon": "$(symbol-structure)"
+      },
+      {
+        "command": "mongoViewer.openIndexes",
+        "title": "View Indexes",
+        "category": "Mongo Viewer",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "mongoViewer.openStats",
+        "title": "View Statistics",
+        "category": "Mongo Viewer",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "mongoViewer.openAggregation",
+        "title": "Build Aggregation",
+        "category": "Mongo Viewer",
+        "icon": "$(layers)"
+      },
+      {
+        "command": "mongoViewer.insertDocument",
+        "title": "Insert Document",
+        "category": "Mongo Viewer",
+        "icon": "$(add)"
+      },
+      {
+        "command": "mongoViewer.importDocuments",
+        "title": "Import Documents…",
+        "category": "Mongo Viewer",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "mongoViewer.exportCollection",
+        "title": "Export Collection…",
+        "category": "Mongo Viewer",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "mongoViewer.pinCollection",
+        "title": "Add to Favorites",
+        "category": "Mongo Viewer",
+        "icon": "$(star-empty)"
+      },
+      {
+        "command": "mongoViewer.unpinCollection",
+        "title": "Remove from Favorites",
+        "category": "Mongo Viewer",
+        "icon": "$(star-full)"
+      },
+      {
+        "command": "mongoViewer.clearRecent",
+        "title": "Clear Recent Collections",
+        "category": "Mongo Viewer",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "mongoViewer.copyName",
+        "title": "Copy Name",
+        "category": "Mongo Viewer",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "mongoViewer.runPlayground",
+        "title": "Run Playground (or Selection)",
+        "category": "Mongo Viewer",
+        "icon": "$(play)"
+      },
+      {
+        "command": "mongoViewer.runStatement",
+        "title": "Run Statement",
+        "category": "Mongo Viewer",
+        "icon": "$(play)"
+      },
+      {
+        "command": "mongoViewer.cancelPlayground",
+        "title": "Cancel Playground Run",
+        "category": "Mongo Viewer",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "mongoViewer.choosePlaygroundTarget",
+        "title": "Choose Playground Connection and Database",
+        "category": "Mongo Viewer",
+        "icon": "$(database)"
+      },
+      {
+        "command": "mongoViewer.compareWithDatabase",
+        "title": "Compare with Database",
+        "category": "Mongo Viewer",
+        "icon": "$(diff)"
+      },
+      {
+        "command": "mongoViewer.deleteOpenDocument",
+        "title": "Delete This Document",
+        "category": "Mongo Viewer",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "mongoViewer.duplicateOpenDocument",
+        "title": "Duplicate This Document",
+        "category": "Mongo Viewer",
+        "icon": "$(files)"
+      },
+      {
+        "command": "mongoViewer.chooseAiModel",
+        "title": "Choose AI Model",
+        "category": "Mongo Viewer",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "mongoViewer.showLogs",
+        "title": "Show Logs",
+        "category": "Mongo Viewer",
+        "icon": "$(output)"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "mongoViewer.connect",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.disconnect",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.reconnect",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.editConnection",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.removeConnection",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.copyConnectionString",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.refreshNode",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.dropDatabase",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.createCollection",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.dropCollection",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.renameCollection",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.copyCollection",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.openCollection",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.openSchema",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.openIndexes",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.openStats",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.openAggregation",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.insertDocument",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.importDocuments",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.exportCollection",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.pinCollection",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.unpinCollection",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.copyName",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.runStatement",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.createDatabase",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.clearTreeFilter",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.clearRecent",
+          "when": "false"
+        },
+        {
+          "command": "mongoViewer.runPlayground",
+          "when": "editorLangId == mongoplayground"
+        },
+        {
+          "command": "mongoViewer.cancelPlayground",
+          "when": "mongoViewer.playgroundRunning"
+        },
+        {
+          "command": "mongoViewer.choosePlaygroundTarget",
+          "when": "editorLangId == mongoplayground"
+        },
+        {
+          "command": "mongoViewer.compareWithDatabase",
+          "when": "resourceScheme == mongoviewer-doc"
+        },
+        {
+          "command": "mongoViewer.deleteOpenDocument",
+          "when": "resourceScheme == mongoviewer-doc"
+        },
+        {
+          "command": "mongoViewer.duplicateOpenDocument",
+          "when": "resourceScheme == mongoviewer-doc"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "mongoViewer.addConnection",
+          "when": "view == mongoViewer.connections",
+          "group": "navigation@1"
+        },
+        {
+          "command": "mongoViewer.newPlayground",
+          "when": "view == mongoViewer.connections",
+          "group": "navigation@2"
+        },
+        {
+          "command": "mongoViewer.filterTree",
+          "when": "view == mongoViewer.connections && !mongoViewer.filterActive",
+          "group": "navigation@3"
+        },
+        {
+          "command": "mongoViewer.clearTreeFilter",
+          "when": "view == mongoViewer.connections && mongoViewer.filterActive",
+          "group": "navigation@3"
+        },
+        {
+          "command": "mongoViewer.refreshAll",
+          "when": "view == mongoViewer.connections",
+          "group": "navigation@4"
+        },
+        {
+          "command": "mongoViewer.goToCollection",
+          "when": "view == mongoViewer.connections",
+          "group": "1_tools@1"
+        },
+        {
+          "command": "mongoViewer.importFromEnv",
+          "when": "view == mongoViewer.connections",
+          "group": "1_tools@2"
+        },
+        {
+          "command": "mongoViewer.showLogs",
+          "when": "view == mongoViewer.connections",
+          "group": "2_misc@1"
+        },
+        {
+          "command": "mongoViewer.clearRecent",
+          "when": "view == mongoViewer.favorites",
+          "group": "navigation@1"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "mongoViewer.connect",
+          "when": "view == mongoViewer.connections && viewItem =~ /connection\\.disconnected/",
+          "group": "1_conn@1"
+        },
+        {
+          "command": "mongoViewer.disconnect",
+          "when": "view == mongoViewer.connections && viewItem =~ /connection\\.connected/",
+          "group": "1_conn@2"
+        },
+        {
+          "command": "mongoViewer.reconnect",
+          "when": "view == mongoViewer.connections && viewItem =~ /connection\\.connected/",
+          "group": "1_conn@3"
+        },
+        {
+          "command": "mongoViewer.openShell",
+          "when": "view == mongoViewer.connections && viewItem =~ /connection|^database|^collection/",
+          "group": "2_tools@1"
+        },
+        {
+          "command": "mongoViewer.newPlayground",
+          "when": "view == mongoViewer.connections && viewItem =~ /connection|^database|^collection/",
+          "group": "2_tools@2"
+        },
+        {
+          "command": "mongoViewer.createDatabase",
+          "when": "view == mongoViewer.connections && viewItem =~ /connection\\.connected\\.rw/",
+          "group": "3_create@1"
+        },
+        {
+          "command": "mongoViewer.createCollection",
+          "when": "view == mongoViewer.connections && viewItem =~ /^database\\.rw/",
+          "group": "3_create@2"
+        },
+        {
+          "command": "mongoViewer.refreshNode",
+          "when": "view == mongoViewer.connections && viewItem =~ /connection\\.connected|^database/",
+          "group": "4_refresh@1"
+        },
+        {
+          "command": "mongoViewer.editConnection",
+          "when": "view == mongoViewer.connections && viewItem =~ /connection/",
+          "group": "5_manage@1"
+        },
+        {
+          "command": "mongoViewer.copyConnectionString",
+          "when": "view == mongoViewer.connections && viewItem =~ /connection/",
+          "group": "5_manage@2"
+        },
+        {
+          "command": "mongoViewer.removeConnection",
+          "when": "view == mongoViewer.connections && viewItem =~ /connection/",
+          "group": "5_manage@3"
+        },
+        {
+          "command": "mongoViewer.openCollection",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection/",
+          "group": "1_open@1"
+        },
+        {
+          "command": "mongoViewer.openSchema",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection/",
+          "group": "1_open@2"
+        },
+        {
+          "command": "mongoViewer.openIndexes",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection/",
+          "group": "1_open@3"
+        },
+        {
+          "command": "mongoViewer.openAggregation",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection/",
+          "group": "1_open@4"
+        },
+        {
+          "command": "mongoViewer.openStats",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection/",
+          "group": "1_open@5"
+        },
+        {
+          "command": "mongoViewer.insertDocument",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection\\.(collection|timeseries)\\.rw/",
+          "group": "3_data@1"
+        },
+        {
+          "command": "mongoViewer.importDocuments",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection\\.(collection|timeseries)\\.rw/",
+          "group": "3_data@2"
+        },
+        {
+          "command": "mongoViewer.exportCollection",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection/",
+          "group": "3_data@3"
+        },
+        {
+          "command": "mongoViewer.copyCollection",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection/",
+          "group": "3_data@4"
+        },
+        {
+          "command": "mongoViewer.pinCollection",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection.*\\.unpinned/",
+          "group": "4_fav@1"
+        },
+        {
+          "command": "mongoViewer.unpinCollection",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection.*\\.pinned/",
+          "group": "4_fav@1"
+        },
+        {
+          "command": "mongoViewer.copyName",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^database|^collection/",
+          "group": "5_copy@1"
+        },
+        {
+          "command": "mongoViewer.renameCollection",
+          "when": "view == mongoViewer.connections && viewItem =~ /^collection\\.[a-z]+\\.rw/",
+          "group": "6_danger@1"
+        },
+        {
+          "command": "mongoViewer.dropCollection",
+          "when": "view == mongoViewer.connections && viewItem =~ /^collection\\.[a-z]+\\.rw/",
+          "group": "6_danger@2"
+        },
+        {
+          "command": "mongoViewer.dropDatabase",
+          "when": "view == mongoViewer.connections && viewItem =~ /^database\\.rw/",
+          "group": "6_danger@3"
+        },
+        {
+          "command": "mongoViewer.openShell",
+          "when": "view == mongoViewer.connections && viewItem =~ /connection\\.connected/",
+          "group": "inline@1"
+        },
+        {
+          "command": "mongoViewer.createCollection",
+          "when": "view == mongoViewer.connections && viewItem =~ /^database\\.rw/",
+          "group": "inline@1"
+        },
+        {
+          "command": "mongoViewer.pinCollection",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection.*\\.unpinned/",
+          "group": "inline@2"
+        },
+        {
+          "command": "mongoViewer.unpinCollection",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection.*\\.pinned/",
+          "group": "inline@2"
+        },
+        {
+          "command": "mongoViewer.openSchema",
+          "when": "(view == mongoViewer.connections || view == mongoViewer.favorites) && viewItem =~ /^collection/",
+          "group": "inline@1"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "mongoViewer.runPlayground",
+          "when": "editorLangId == mongoplayground && !mongoViewer.playgroundRunning",
+          "group": "navigation@1"
+        },
+        {
+          "command": "mongoViewer.cancelPlayground",
+          "when": "editorLangId == mongoplayground && mongoViewer.playgroundRunning",
+          "group": "navigation@1"
+        },
+        {
+          "command": "mongoViewer.choosePlaygroundTarget",
+          "when": "editorLangId == mongoplayground",
+          "group": "navigation@2"
+        },
+        {
+          "command": "mongoViewer.compareWithDatabase",
+          "when": "resourceScheme == mongoviewer-doc",
+          "group": "navigation@1"
+        },
+        {
+          "command": "mongoViewer.duplicateOpenDocument",
+          "when": "resourceScheme == mongoviewer-doc",
+          "group": "navigation@2"
+        },
+        {
+          "command": "mongoViewer.deleteOpenDocument",
+          "when": "resourceScheme == mongoviewer-doc",
+          "group": "navigation@3"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "mongoViewer.runPlayground",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "editorLangId == mongoplayground"
+      },
+      {
+        "command": "mongoViewer.goToCollection",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m"
+      }
+    ],
+    "languages": [
+      {
+        "id": "mongoplayground",
+        "aliases": [
+          "MongoDB Playground"
+        ],
+        "extensions": [
+          ".mongo.js"
+        ],
+        "configuration": "./syntaxes/language-configuration.json",
+        "icon": {
+          "light": "media/file.svg",
+          "dark": "media/file.svg"
+        }
+      },
+      {
+        "id": "mongodoc",
+        "aliases": [
+          "MongoDB Document"
+        ],
+        "extensions": [
+          ".mongodoc"
+        ],
+        "configuration": "./syntaxes/language-configuration.json",
+        "icon": {
+          "light": "media/file.svg",
+          "dark": "media/file.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mongoplayground",
+        "scopeName": "source.mongoplayground",
+        "path": "./syntaxes/mongoplayground.tmLanguage.json"
+      },
+      {
+        "language": "mongodoc",
+        "scopeName": "source.mongodoc",
+        "path": "./syntaxes/mongodoc.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "mongoplayground",
+        "path": "./snippets/playground.json"
+      }
+    ],
+    "colors": [
+      {
+        "id": "mongoViewer.production",
+        "description": "Color that identifies production connections.",
+        "defaults": {
+          "dark": "#f14c4c",
+          "light": "#c72e2e",
+          "highContrast": "#f14c4c"
+        }
+      },
+      {
+        "id": "mongoViewer.connected",
+        "description": "Color of a connected connection.",
+        "defaults": {
+          "dark": "#3fb950",
+          "light": "#1a7f37",
+          "highContrast": "#3fb950"
+        }
+      }
+    ],
+    "configurationDefaults": {
+      "[mongodoc]": {
+        "files.autoSave": "off",
+        "editor.formatOnSave": false
+      }
+    },
+    "configuration": {
+      "title": "Mongo Viewer",
+      "properties": {
+        "mongoViewer.defaultPageSize": {
+          "type": "number",
+          "enum": [
+            20,
+            50,
+            100
+          ],
+          "default": 20,
+          "description": "Documents per page in the collection viewer."
+        },
+        "mongoViewer.defaultView": {
+          "type": "string",
+          "enum": [
+            "table",
+            "json",
+            "tree"
+          ],
+          "default": "table",
+          "description": "Display mode for newly opened collections."
+        },
+        "mongoViewer.queryTimeoutMs": {
+          "type": "number",
+          "default": 30000,
+          "minimum": 1000,
+          "description": "Server-side time limit (maxTimeMS) applied to queries from the collection viewer."
+        },
+        "mongoViewer.countTimeoutMs": {
+          "type": "number",
+          "default": 3000,
+          "minimum": 100,
+          "description": "Time limit for filtered counts. Counts that exceed it are skipped rather than blocking the viewer."
+        },
+        "mongoViewer.connectTimeoutMs": {
+          "type": "number",
+          "default": 8000,
+          "minimum": 500,
+          "description": "How long to wait for a server when connecting."
+        },
+        "mongoViewer.schemaSampleSize": {
+          "type": "number",
+          "default": 500,
+          "minimum": 10,
+          "maximum": 10000,
+          "description": "Number of documents sampled by the schema viewer."
+        },
+        "mongoViewer.showSystemCollections": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show system.* collections in the sidebar."
+        },
+        "mongoViewer.confirmProductionWrites": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ask for confirmation before any write to a connection marked as production."
+        },
+        "mongoViewer.mongoshPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the mongosh executable. Leave empty to find it on your PATH."
+        },
+        "mongoViewer.playground.resultLimit": {
+          "type": "number",
+          "default": 100,
+          "minimum": 1,
+          "description": "Maximum documents shown for each cursor result in a playground."
+        },
+        "mongoViewer.playground.timeoutMs": {
+          "type": "number",
+          "default": 300000,
+          "minimum": 1000,
+          "description": "A playground run is stopped after this time."
+        },
+        "mongoViewer.ai.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show natural-language search in the query bar."
+        },
+        "mongoViewer.ai.endpoint": {
+          "type": "string",
+          "default": "http://localhost:11434",
+          "description": "Base URL of the Ollama server."
+        },
+        "mongoViewer.ai.model": {
+          "type": "string",
+          "default": "qwen3.5:4b",
+          "markdownDescription": "Ollama model used for natural-language search. Any installed model name works, or use the **Mongo Viewer: Choose AI Model** command. If it is not installed, the smallest installed Qwen model is used."
+        },
+        "mongoViewer.ai.includeSampleValues": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include short example values in the prompt. They are only ever sent to a local endpoint (localhost)."
+        },
+        "mongoViewer.ai.autoRun": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run generated queries immediately instead of waiting for you to press Run."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "manifest": "node scripts/manifest.mjs",
+    "build": "node scripts/build.mjs",
+    "watch": "node scripts/build.mjs --watch",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p src/webview",
+    "test": "vitest run",
+    "e2e": "node test/e2e/run.mjs",
+    "package": "npm run manifest && npm run typecheck && node scripts/build.mjs --production && vsce package --no-dependencies --skip-license --allow-missing-repository",
+    "vscode:prepublish": "node scripts/build.mjs --production"
+  }
+}

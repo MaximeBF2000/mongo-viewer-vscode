@@ -1,0 +1,13 @@
+{
+  "Find": { "prefix": "find", "body": ["db.${1:collection}.find({ $2 }).limit(${3:20});"], "description": "Find documents" },
+  "Find one": { "prefix": "findOne", "body": ["db.${1:collection}.findOne({ $2 });"], "description": "Find one document" },
+  "Count": { "prefix": "count", "body": ["db.${1:collection}.countDocuments({ $2 });"], "description": "Count matching documents" },
+  "Aggregate": { "prefix": "aggregate", "body": ["db.${1:collection}.aggregate([", "  { \\$match: { $2 } },", "  { \\$group: { _id: \"\\$${3:field}\", count: { \\$sum: 1 } } },", "  { \\$sort: { count: -1 } },", "]);"], "description": "Group and count" },
+  "Insert one": { "prefix": "insertOne", "body": ["db.${1:collection}.insertOne({", "  $2", "});"], "description": "Insert a document" },
+  "Update one": { "prefix": "updateOne", "body": ["db.${1:collection}.updateOne(", "  { _id: ObjectId(\"$2\") },", "  { \\$set: { $3 } },", ");"], "description": "Update one document" },
+  "Update many": { "prefix": "updateMany", "body": ["db.${1:collection}.updateMany(", "  { $2 },", "  { \\$set: { $3 } },", ");"], "description": "Update matching documents" },
+  "Delete one": { "prefix": "deleteOne", "body": ["db.${1:collection}.deleteOne({ _id: ObjectId(\"$2\") });"], "description": "Delete one document" },
+  "Lookup": { "prefix": "lookup", "body": ["{ \\$lookup: { from: \"${1:other}\", localField: \"${2:otherId}\", foreignField: \"_id\", as: \"${3:other}\" } },"], "description": "Join another collection" },
+  "Create index": { "prefix": "createIndex", "body": ["db.${1:collection}.createIndex({ ${2:field}: 1 });"], "description": "Create an index" },
+  "Use database": { "prefix": "use", "body": ["use(\"${1:database}\");"], "description": "Switch database" }
+}
